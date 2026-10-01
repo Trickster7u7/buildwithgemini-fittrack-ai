@@ -70,6 +70,7 @@ function loadChromium() {
 }
 
 function ensureBrowserInstalled() {
+  if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) return;
   // Downloads the Chromium binary into the shared per-user cache if it isn't
   // already there. Idempotent and a no-op once installed, so it's cheap on
   // repeat runs (and instant if the lab image pre-installed it).
@@ -368,7 +369,10 @@ Options:
   fs.mkdirSync(tempDir, { recursive: true });
 
   console.log('\nLaunching Playwright Chromium browser...');
-  const browser = await chromium.launch({ headless: options.headless });
+  const browser = await chromium.launch({
+    headless: options.headless,
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+  });
   const context = await browser.newContext({
     viewport: options.viewport,
     recordVideo: { dir: tempDir, size: options.viewport },
